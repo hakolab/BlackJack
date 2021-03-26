@@ -1,0 +1,29 @@
+html {
+  background-color: #6f4b3e;
+}
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.h1-header {
+  font-size: 32px;
+  margin-bottom: 0;
+  color: #f8f4e6;
+}
+
+.h2-header {
+  font-size: 24px;
+  margin-top: 0;
+  color: #f8f4e6;
+}
+
+#table {
+  width: 95%;
+  height: 600px;
+  background-color: #2e8b57;
+  border: 5px solid #595857;
+  border-radius: 5px;
+  margin: auto;
+}
