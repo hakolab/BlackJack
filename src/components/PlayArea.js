@@ -20,9 +20,34 @@ export default function PlayArea(props) {
   const classes = useStyles();
   return (
     <Box className={classes.playArea}>
-      <Grid container direction="row" spacing={2} alignItems="center" justify="center">
+      <Grid
+        container
+        direction="column"
+        spacing={5}
+        alignItems="center"
+        justify="center"
+      >
         <Grid item>
-          <Card card={props.card} />
+          <Grid container direction="row" spacing={1}>
+            {props.dealersHand.map((card, index) => {
+              return (
+                <Grid item key={index}>
+                  <Card card={card} />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container direction="row" spacing={1}>
+            {props.playersHand.map((card, index) => {
+              return (
+                <Grid item key={index}>
+                  <Card card={card} />
+                </Grid>
+              );
+            })}
+          </Grid>
         </Grid>
       </Grid>
     </Box>

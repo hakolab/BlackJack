@@ -26,10 +26,13 @@ const initialDeck = getDeck();
  */
 function getDeck() {
   const suits = ["♠", "♣", "❤", "♦"];
+  // prettier-ignore
   const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const deck = [];
 
-  suits.forEach((suit) => ranks.forEach((rank) => deck.push({ suit: suit, rank: rank })));
+  suits.forEach((suit) =>
+    ranks.forEach((rank) => deck.push({ suit: suit, rank: rank }))
+  );
   return deck;
 }
 
@@ -94,6 +97,15 @@ export default function Border7() {
   const classes = useStyles();
   const [deck, setDeck] = useState(initialDeck);
   const [card, setCard] = useState(null);
+  // 初期値はとりあえず決め打ち
+  const [dealersHand, setDealersHand] = useState([
+    { suit: "♠", rank: "A" },
+    null
+  ]);
+  const [playersHand, setPlayersHand] = useState([
+    { suit: "♠", rank: "A" },
+    { suit: "♣", rank: "5" }
+  ]);
   const [isWin, setIsWin] = useState(null);
   const [answered, setAnswered] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
@@ -361,10 +373,10 @@ export default function Border7() {
    */
   return (
     <Box>
-      <PlayArea card={card} />
+      <PlayArea dealersHand={dealersHand} playersHand={playersHand} />
       <Box className={classes.messageArea}>
-        {getMessage()}
-        {!isGameFinished && getButtons()}
+        {/* getMessage() */}
+        {/* !isGameFinished && getButtons() */}
       </Box>
     </Box>
   );
