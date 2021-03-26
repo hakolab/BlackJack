@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box } from "@material-ui/core";
 import { useStyles } from "./hooks/useStyles";
 import PlayArea from "./components/PlayArea";
-import Border7Buttons from "./components/Border7Buttons";
+import BlackJackButtons from "./components/BlackJackButtons";
 import Message from "./components/Message";
 import GameProgressButton from "./components/GameProgressButton";
 
@@ -310,7 +310,7 @@ export default function Border7() {
   function getButtons() {
     // prettier-ignore
     return answered ? <GameProgressButton onClickNext={next} isTheLastGame={deck.length === 0} />
-                    : <Border7Buttons onClickOver={checkOver} onClick7={check7} onClickUnder={checkUnder} />;
+                    : <BlackJackButtons onClickOver={checkOver} onClick7={check7} onClickUnder={checkUnder} />;
   }
 
   /**

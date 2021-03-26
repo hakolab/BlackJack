@@ -33,7 +33,7 @@ import { Box, Button } from "@material-ui/core";
  *
  * @param {*} props
  */
-export default function Border7Buttons(props) {
+export default function BlackJackButtons(props) {
   useEffect(() => {
     function click(event) {
       switch (event.key) {

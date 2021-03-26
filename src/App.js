@@ -1,6 +1,6 @@
 import "./styles.css";
 import { Box, Typography } from "@material-ui/core";
-import Border7 from './Border7'
+import BlackJack from "./BlackJack";
 
 export default function App() {
   return (
@@ -11,7 +11,9 @@ export default function App() {
       <Typography variant="h2">
         <Box className={"h2-header"}>on Codesandbox</Box>
       </Typography>
-      <Box id="table"><Border7/></Box>
+      <Box id="table">
+        <BlackJack />
+      </Box>
     </Box>
   );
 }
