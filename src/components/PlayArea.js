@@ -28,10 +28,11 @@ export default function PlayArea(props) {
         justify="center"
       >
         <Grid item>
-          <Grid container direction="row" spacing={1}>
+          <Grid container direction="row">
             {props.dealersHand.map((card, index) => {
+              let marginLeft = index === 0 ? "0px" : "-50px";
               return (
-                <Grid item key={index}>
+                <Grid item key={index} style={{ marginLeft: marginLeft }}>
                   <Card card={card} />
                 </Grid>
               );
@@ -39,10 +40,11 @@ export default function PlayArea(props) {
           </Grid>
         </Grid>
         <Grid item>
-          <Grid container direction="row" spacing={1}>
+          <Grid container direction="row">
             {props.playersHand.map((card, index) => {
+              let marginLeft = index === 0 ? "0px" : "-50px";
               return (
-                <Grid item key={index}>
+                <Grid item key={index} style={{ marginLeft: marginLeft }}>
                   <Card card={card} />
                 </Grid>
               );

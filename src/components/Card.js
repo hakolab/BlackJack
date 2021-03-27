@@ -17,7 +17,8 @@ const useCardStyles = makeStyles({
         default:
           return "black";
       }
-    }
+    },
+    border: "1px solid grey"
   },
   content: {
     width: "100%",
