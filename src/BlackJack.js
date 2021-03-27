@@ -146,15 +146,14 @@ export default function Border7() {
     return cardObj;
   }
 
+  function hit() {
+    return getCard();
+  }
+
   function doHit() {
-    const _card = getCard();
-    setCard(_card);
-
-    const isWin = getRankNum(_card.rank) > 7;
-    setIsWin(isWin);
-
-    isWin ? setWinCount(winCount + 1) : setLoseCount(loseCount + 1);
-    setAnswered(true);
+    const newPlayersHand = playersHand.slice();
+    newPlayersHand.push(hit());
+    setPlayersHand(newPlayersHand);
   }
 
   function doStand() {
