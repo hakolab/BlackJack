@@ -4,8 +4,20 @@ import { makeStyles } from "@material-ui/styles";
 
 const useCardStyles = makeStyles({
   root: {
-    width: "140px",
-    height: "200px"
+    width: "105px",
+    height: "150px",
+    color: (props) => {
+      if (props.card === null) {
+        return "black";
+      }
+      switch (props.card.suit) {
+        case "❤":
+        case "♦":
+          return "red";
+        default:
+          return "black";
+      }
+    }
   },
   content: {
     width: "100%",
@@ -17,8 +29,8 @@ const useCardStyles = makeStyles({
   },
   middle: {
     fontSize: "30px",
-    height: "140px",
-    lineHeight: "140px"
+    height: "90px",
+    lineHeight: "90px"
   },
   bottom: {
     height: "30px",
@@ -44,9 +56,11 @@ const useCardStyles = makeStyles({
  * @param {*} props
  */
 export default function Card(props) {
-  const classes = useCardStyles();
-  const topAndBottom = props.card === null ? "?" : props.card.suit + props.card.rank;
+  const classes = useCardStyles(props);
+  const topAndBottom =
+    props.card === null ? "?" : props.card.suit + props.card.rank;
   const middle = props.card === null ? "?" : props.card.suit;
+
   return (
     <MuiCard className={classes.root}>
       <Box className={classes.content} display="flex" flexDirection="column">

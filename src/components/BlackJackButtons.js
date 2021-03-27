@@ -37,14 +37,11 @@ export default function BlackJackButtons(props) {
   useEffect(() => {
     function click(event) {
       switch (event.key) {
-        case "o":
-          props.onClickOver();
+        case "h":
+          props.onClickHit();
           break;
-        case "7":
-          props.onClick7();
-          break;
-        case "u":
-          props.onClickUnder();
+        case "s":
+          props.onClickStand();
           break;
         default:
           break;
@@ -65,18 +62,13 @@ export default function BlackJackButtons(props) {
   return (
     <Box display="flex" flexDirection="row" justifyContent="center" mt={1}>
       <Box mx={1}>
-        <Button variant="contained" onClick={props.onClickOver}>
-          OVER
+        <Button variant="contained" onClick={props.onClickHit}>
+          HIT
         </Button>
       </Box>
       <Box mx={1}>
-        <Button variant="contained" onClick={props.onClick7}>
-          7
-        </Button>
-      </Box>
-      <Box mx={1}>
-        <Button variant="contained" onClick={props.onClickUnder}>
-          UNDER
+        <Button variant="contained" onClick={props.onClickStand}>
+          STAND
         </Button>
       </Box>
     </Box>

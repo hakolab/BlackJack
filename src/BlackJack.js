@@ -104,7 +104,7 @@ export default function Border7() {
   ]);
   const [playersHand, setPlayersHand] = useState([
     { suit: "♠", rank: "A" },
-    { suit: "♣", rank: "5" }
+    { suit: "❤", rank: "5" }
   ]);
   const [isWin, setIsWin] = useState(null);
   const [answered, setAnswered] = useState(false);
@@ -146,34 +146,7 @@ export default function Border7() {
     return cardObj;
   }
 
-  /**
-   * カードの数値チェック Over
-   *
-   * 処理概要
-   *  カードを一枚引き、その結果に従って以下の state を更新する
-   *   - state card
-   *   - state winCount または loseCount
-   *   - state answered
-   *   - state isWin
-   *
-   * 処理詳細
-   *  - 定数 _card を宣言し、getCard() を使用して初期化する
-   *  - state card を _card の値で更新する
-   *
-   *  - カードの数が、7より大きい場合
-   *     - state isWin を true に更新する
-   *  - カードの数が、7より小さい場合
-   *     - state isWin を false に更新する
-   *
-   *  - state isWin が true の場合
-   *     - state winCount の値を +1 する
-   *  - state isWin が false の場合
-   *     - state loseCount の値を +1 する
-   *
-   *  - state answered を true に更新する
-   *
-   */
-  function checkOver() {
+  function doHit() {
     const _card = getCard();
     setCard(_card);
 
@@ -184,72 +157,7 @@ export default function Border7() {
     setAnswered(true);
   }
 
-  /**
-   * カードの数値チェック ７
-   *
-   * 処理概要
-   *  カードを一枚引き、その結果に従って以下の state を更新する
-   *   - state card
-   *   - state winCount または loseCount
-   *   - state answered
-   *   - state isWin
-   *
-   * 処理詳細
-   *  - 定数 _card を宣言し、getCard() を使用して初期化する
-   *  - state card を _card の値で更新する
-   *
-   *  - カードの数が、7の場合
-   *     - state isWin を true に更新する
-   *  - カードの数が、7でない場合
-   *     - state isWin を false に更新する
-   *
-   *  - state isWin が true の場合
-   *     - state winCount の値を +1 する
-   *  - state isWin が false の場合
-   *     - state loseCount の値を +1 する
-   *
-   *  - state answered を true に更新する
-   *
-   */
-  function check7() {
-    const _card = getCard();
-    setCard(_card);
-
-    const isWin = getRankNum(_card.rank) === 7;
-    setIsWin(isWin);
-
-    isWin ? setWinCount(winCount + 1) : setLoseCount(loseCount + 1);
-    setAnswered(true);
-  }
-
-  /**
-   * カードの数値チェック Under
-   *
-   * 処理概要
-   *  カードを一枚引き、その結果に従って以下の state を更新する
-   *   - state card
-   *   - state winCount または loseCount
-   *   - state answered
-   *   - state isWin
-   *
-   * 処理詳細
-   *  - 定数 _card を宣言し、getCard() を使用して初期化する
-   *  - state card を _card の値で更新する
-   *
-   *  - カードの数が、7より小さい場合
-   *     - state isWin を true に更新する
-   *  - カードの数が、7より大きい場合
-   *     - state isWin を false に更新する
-   *
-   *  - state isWin が true の場合
-   *     - state winCount の値を +1 する
-   *  - state isWin が false の場合
-   *     - state loseCount の値を +1 する
-   *
-   *  - state answered を true に更新する
-   *
-   */
-  function checkUnder() {
+  function doStand() {
     const card = getCard();
     setCard(card);
 
@@ -290,39 +198,9 @@ export default function Border7() {
     }
   }
 
-  /**
-   * ボタンコンポーネント取得関数
-   *
-   * 処理概要
-   * state answered の値に従って、ボタンコンポーネントを返却する
-   *
-   * 処理詳細
-   *  - state answered が true の場合
-   *     - ゲーム進行ボタンコンポーネント GameProgressButton を返却する
-   *       ※ props には以下の関数、値を設定する
-   *        - onClickNext: next()
-   *        - isTheLastGame: deck.length が 0 かどうか
-   *
-   *  - state answered が false の場合
-   *     - Border7 ボタンコンポーネント Border7Buttons を返却する
-   *       ※ props には以下の関数を設定する
-   *        - onClickOver: chechOver()
-   *        - onClick7: check7()
-   *        - onClickUnder: checkUnder()
-   *
-   * 参考
-   * props に関数を渡す際に、関数名の後に () を付けるかどうかでどのような違いがあるかについては以下のサイトを参照して理解を深めてください
-   *  React.js ドキュメント：　「コンポーネントに関数を渡す」
-   *  https://ja.reactjs.org/docs/faq-functions.html
-   *  React.js チュートリアル：　「インタラクティブなコンポーネントを作る」の「補足」
-   *  https://ja.reactjs.org/tutorial/tutorial.html#making-an-interactive-component
-   *
-   * @return {component} <GameProgressButton /> or <Border7Buttons />
-   */
   function getButtons() {
     // prettier-ignore
-    return answered ? <GameProgressButton onClickNext={next} isTheLastGame={deck.length === 0} />
-                    : <BlackJackButtons onClickOver={checkOver} onClick7={check7} onClickUnder={checkUnder} />;
+    return <BlackJackButtons onClickHit={doHit} onClickStand={doStand} />;
   }
 
   /**
@@ -376,7 +254,7 @@ export default function Border7() {
       <PlayArea dealersHand={dealersHand} playersHand={playersHand} />
       <Box className={classes.messageArea}>
         {/* getMessage() */}
-        {/* !isGameFinished && getButtons() */}
+        {getButtons()}
       </Box>
     </Box>
   );
