@@ -106,6 +106,7 @@ export default function Border7() {
     { suit: "♠", rank: "A" },
     { suit: "❤", rank: "5" }
   ]);
+  const [isDeclaredStand, setIsDeclaredStand] = useState(false);
   const [isWin, setIsWin] = useState(null);
   const [answered, setAnswered] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
@@ -157,14 +158,7 @@ export default function Border7() {
   }
 
   function doStand() {
-    const card = getCard();
-    setCard(card);
-
-    const isWin = getRankNum(card.rank) < 7;
-    setIsWin(isWin);
-
-    isWin ? setWinCount(winCount + 1) : setLoseCount(loseCount + 1);
-    setAnswered(true);
+    setIsDeclaredStand(true);
   }
 
   /* 
