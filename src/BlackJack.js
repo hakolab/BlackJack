@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box } from "@material-ui/core";
+import React, { useEffect, useState, useCallback, useReducer } from "react";
+import { Box, formatMs } from "@material-ui/core";
 import { useStyles } from "./hooks/useStyles";
 import PlayArea from "./components/PlayArea";
 import BlackJackButtons from "./components/BlackJackButtons";
@@ -64,6 +64,56 @@ function getRankNum(rank) {
   }
 }
 
+const initialState = {
+  deck: initialDeck,
+  dealersHand: [],
+  playersHand: [],
+  isDeclaredStand: false
+};
+
+function deal(deck, hand, time) {
+  const newDeck = deck.slice();
+  const newHand = hand.slice();
+  for (let i = 0; i < time; i++) {
+    const index = Math.floor(Math.random() * newDeck.length);
+    newHand.push(newDeck[index]);
+    newDeck.splice(index, 1);
+  }
+  return [newDeck, newHand];
+}
+function initDealersHand(state) {
+  const [newDeck, newHand] = deal(state.deck, state.dealersHand, 2);
+  return { ...state, deck: newDeck, dealersHand: newHand };
+}
+
+function initPlayersHand(state) {
+  const [newDeck, newHand] = deal(state.deck, state.playersHand, 2);
+  return { ...state, deck: newDeck, playersHand: newHand };
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "init":
+      state = initDealersHand(state);
+      state = initPlayersHand(state);
+      return state;
+    case "hit":
+      const [newDeck, newHand] = deal(state.deck, state.playersHand, 1);
+      return { ...state, deck: newDeck, playersHand: newHand };
+    case "stand":
+      return { ...state, isDeclaredStand: true };
+    case "open":
+      console.log(state.dealersHand);
+      let total = 0;
+      state.dealersHand.forEach((card) => {
+        total += getRankNum(card.rank);
+      });
+      console.log(total);
+      return { ...state };
+    default:
+  }
+}
+
 /**
  * Border7 コンポーネント
  *
@@ -96,69 +146,26 @@ function getRankNum(rank) {
 export default function Border7() {
   const classes = useStyles();
   const [deck, setDeck] = useState(initialDeck);
-  const [card, setCard] = useState(null);
-  // 初期値はとりあえず決め打ち
-  const [dealersHand, setDealersHand] = useState([
-    { suit: "♠", rank: "A" },
-    null
-  ]);
-  const [playersHand, setPlayersHand] = useState([
-    { suit: "♠", rank: "A" },
-    { suit: "❤", rank: "5" }
-  ]);
-  const [isDeclaredStand, setIsDeclaredStand] = useState(false);
+
   const [isWin, setIsWin] = useState(null);
   const [answered, setAnswered] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [winCount, setWinCount] = useState(0);
   const [loseCount, setLoseCount] = useState(0);
 
-  /**
-   * card オブジェクト取得関数
-   *
-   * 処理概要
-   *  state deck から card オブジェクト要素を取得する
-   *
-   * 処理詳細
-   *  - 定数 index を宣言し、0 から デッキ枚数 までのランダムな整数を代入する
-   *  - state deck から定数 index の値を使用して要素（card オブジェクト）を取得する
-   *  - 取得した要素は削除し、state deck を更新する
-   *
-   * ランダムな数値を取得する際には以下を用いる
-   * Math.floor(Math.random() * ランダムに取得したい数値の最大値)
-   * 例： 0 から 10 までのランダムな数値を取得したい
-   * 　　Math.floor(Math.random() * 10);
-   *
-   * state deck を更新する際は、イミュータブルに更新する
-   *
-   * 参考：
-   *  React.js チュートリアル：　「イミュータビリティは何故重要なのか」
-   *  https://ja.reactjs.org/tutorial/tutorial.html#why-immutability-is-important
-   *
-   * @return {object} cardObj
-   */
-  function getCard() {
-    const index = Math.floor(Math.random() * deck.length);
-    const cardObj = deck[index];
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-    const newDeck = deck.slice();
-    newDeck.splice(index, 1);
-    setDeck(newDeck);
-    return cardObj;
-  }
-
-  function hit() {
-    return getCard();
-  }
+  useEffect(() => {
+    dispatch({ type: "init" });
+  }, []);
 
   function doHit() {
-    const newPlayersHand = playersHand.slice();
-    newPlayersHand.push(hit());
-    setPlayersHand(newPlayersHand);
+    dispatch({ type: "hit" });
   }
 
   function doStand() {
-    setIsDeclaredStand(true);
+    dispatch({ type: "stand" });
+    dispatch({ type: "open" });
   }
 
   /* 
@@ -244,7 +251,11 @@ export default function Border7() {
    */
   return (
     <Box>
-      <PlayArea dealersHand={dealersHand} playersHand={playersHand} />
+      <PlayArea
+        dealersHand={state.dealersHand}
+        playersHand={state.playersHand}
+        isDeclaredStand={state.isDeclaredStand}
+      />
       <Box className={classes.messageArea}>
         {/* getMessage() */}
         {getButtons()}
