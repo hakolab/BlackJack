@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useReducer } from "react";
-import { Box, formatMs } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { useStyles } from "./hooks/useStyles";
 import PlayArea from "./components/PlayArea";
 import BlackJackButtons from "./components/BlackJackButtons";
@@ -54,14 +54,39 @@ function getRankNum(rank) {
     case "A":
       return 1;
     case "J":
-      return 11;
     case "Q":
-      return 12;
     case "K":
-      return 13;
+      return 10;
     default:
       return Number(rank);
   }
+}
+
+function getTotal(hand) {
+  let total = 0;
+  for (const card of hand) {
+    total += getRankNum(card.rank);
+  }
+  return total;
+}
+
+function hasAce(hand) {
+  for (const card of hand) {
+    if (card.rank === "A") return true;
+  }
+  return false;
+}
+
+function checkDealersScore(hand) {
+  let total = getTotal(hand);
+  // ソフトハンドのとき、Aceを 11 と数える
+  if (hasAce(hand)) {
+    total += 10;
+  }
+  if (total < 17) {
+    return true;
+  }
+  return false;
 }
 
 const initialState = {
@@ -70,6 +95,17 @@ const initialState = {
   playersHand: [],
   isDeclaredStand: false
 };
+
+function dealForDealer(deck, hand) {
+  const newDeck = deck.slice();
+  const newHand = hand.slice();
+  while (checkDealersScore(newHand)) {
+    const index = Math.floor(Math.random() * newDeck.length);
+    newHand.push(newDeck[index]);
+    newDeck.splice(index, 1);
+  }
+  return [newDeck, newHand];
+}
 
 function deal(deck, hand, time) {
   const newDeck = deck.slice();
@@ -81,6 +117,7 @@ function deal(deck, hand, time) {
   }
   return [newDeck, newHand];
 }
+
 function initDealersHand(state) {
   const [newDeck, newHand] = deal(state.deck, state.dealersHand, 2);
   return { ...state, deck: newDeck, dealersHand: newHand };
@@ -93,23 +130,22 @@ function initPlayersHand(state) {
 
 function reducer(state, action) {
   switch (action.type) {
-    case "init":
+    case "init": {
       state = initDealersHand(state);
       state = initPlayersHand(state);
       return state;
-    case "hit":
+    }
+    case "hit": {
       const [newDeck, newHand] = deal(state.deck, state.playersHand, 1);
       return { ...state, deck: newDeck, playersHand: newHand };
-    case "stand":
+    }
+    case "stand": {
       return { ...state, isDeclaredStand: true };
-    case "open":
-      console.log(state.dealersHand);
-      let total = 0;
-      state.dealersHand.forEach((card) => {
-        total += getRankNum(card.rank);
-      });
-      console.log(total);
-      return { ...state };
+    }
+    case "open": {
+      const [newDeck, newHand] = dealForDealer(state.deck, state.dealersHand);
+      return { ...state, deck: newDeck, dealersHand: newHand };
+    }
     default:
   }
 }
