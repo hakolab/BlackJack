@@ -39,12 +39,12 @@ function deal(deck, hand, time) {
 }
 
 function initDealersHand(state) {
-  const [newDeck, newHand] = deal(state.deck, state.dealersHand, 2);
+  const [newDeck, newHand] = deal(state.deck, [], 2);
   return { ...state, deck: newDeck, dealersHand: newHand };
 }
 
 function initPlayersHand(state) {
-  const [newDeck, newHand] = deal(state.deck, state.playersHand, 2);
+  const [newDeck, newHand] = deal(state.deck, [], 2);
   return { ...state, deck: newDeck, playersHand: newHand };
 }
 
@@ -146,17 +146,15 @@ export default function Border7() {
    *
    */
   function next() {
-    if (deck.length === 0) {
-      setIsGameFinished(true);
-    } else {
-      setCard(null);
-      setAnswered(false);
-    }
+    dispatch({ type: "init" });
   }
 
-  function getButtons() {
-    // prettier-ignore
-    return <BlackJackButtons onClickHit={doHit} onClickStand={doStand} />;
+  function getButtons(playersHand) {
+    if (BlackJackUtilities.getTotal(playersHand) > 21) {
+      return <GameProgressButton onClickNext={next} />;
+    } else {
+      return <BlackJackButtons onClickHit={doHit} onClickStand={doStand} />;
+    }
   }
 
   /**
@@ -177,15 +175,12 @@ export default function Border7() {
    *
    * @return {component} <Message />
    */
-  function getMessage() {
+  function getMessage(playersHand) {
     let message = [];
-    if (isGameFinished) {
-      message.push("Thank you for playing!");
-      message.push(`Win: ${winCount} Lose: ${loseCount}`);
-    } else if (answered) {
-      message.push(isWin ? "Win!" : "Lose!");
+    if (BlackJackUtilities.getTotal(playersHand) > 21) {
+      message.push("BUSTED!!");
     } else {
-      message.push("Over or Under?");
+      message.push("Hit or Stand?");
     }
 
     return <Message>{message}</Message>;
@@ -213,8 +208,8 @@ export default function Border7() {
         isDeclaredStand={state.isDeclaredStand}
       />
       <Box className={classes.messageArea}>
-        {/* getMessage() */}
-        {getButtons()}
+        {getMessage(state.playersHand)}
+        {getButtons(state.playersHand)}
       </Box>
     </Box>
   );
