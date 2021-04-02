@@ -78,3 +78,36 @@ export function checkDealersScore(hand) {
   }
   return false;
 }
+
+export function isAce(card) {
+  return card.rank === "A";
+}
+
+export function isFaceCardOrTen(card) {
+  if (getRankNum(card.rank) === 10) {
+    return true;
+  }
+  return false;
+}
+export function isFaceCard(card) {
+  switch (card.rank) {
+    case "J":
+    case "Q":
+    case "K":
+      return true;
+    default:
+      return false;
+  }
+}
+
+export function isBlackJack(hand) {
+  const firstCard = hand[0];
+  const secondCard = hand[1];
+  if (
+    (isAce(firstCard) && isFaceCardOrTen(secondCard)) ||
+    (isFaceCardOrTen(firstCard) && isAce(secondCard))
+  ) {
+    return true;
+  }
+  return false;
+}

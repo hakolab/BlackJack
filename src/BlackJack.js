@@ -13,7 +13,7 @@ const initialState = {
   deck: initialDeck,
   dealersHand: [],
   playersHand: [],
-  isDeclaredStand: false
+  isTurnEnd: false
 };
 
 function dealForDealer(deck, hand) {
@@ -53,18 +53,29 @@ function reducer(state, action) {
     case "init": {
       state = initDealersHand(state);
       state = initPlayersHand(state);
-      return state;
+      return { ...state, isTurnEnd: false };
     }
     case "hit": {
       const [newDeck, newHand] = deal(state.deck, state.playersHand, 1);
       return { ...state, deck: newDeck, playersHand: newHand };
     }
     case "stand": {
-      return { ...state, isDeclaredStand: true };
-    }
-    case "open": {
       const [newDeck, newHand] = dealForDealer(state.deck, state.dealersHand);
-      return { ...state, deck: newDeck, dealersHand: newHand };
+      return { ...state, deck: newDeck, dealersHand: newHand, isTurnEnd: true };
+    }
+    case "check": {
+      // ディーラーまたはプレイヤーがブラックジャック
+      if (
+        BlackJackUtilities.isBlackJack(state.dealersHand) ||
+        BlackJackUtilities.isBlackJack(state.playersHand)
+      ) {
+        return { ...state, isTurnEnd: true };
+      }
+      // プレイヤーのハンドのスコアが 21 以上になった
+      if (BlackJackUtilities.getTotal(state.playersHand) >= 21) {
+        return { ...state, isTurnEnd: true };
+      }
+      return { ...state };
     }
     default:
   }
@@ -113,15 +124,16 @@ export default function Border7() {
 
   useEffect(() => {
     dispatch({ type: "init" });
+    dispatch({ type: "check" });
   }, []);
 
   function doHit() {
     dispatch({ type: "hit" });
+    dispatch({ type: "check" });
   }
 
   function doStand() {
     dispatch({ type: "stand" });
-    dispatch({ type: "open" });
   }
 
   /* 
@@ -147,10 +159,11 @@ export default function Border7() {
    */
   function next() {
     dispatch({ type: "init" });
+    dispatch({ type: "check" });
   }
 
   function getButtons(playersHand) {
-    if (BlackJackUtilities.getTotal(playersHand) > 21) {
+    if (BlackJackUtilities.getTotal(playersHand) > 21 || state.isTurnEnd) {
       return <GameProgressButton onClickNext={next} />;
     } else {
       return <BlackJackButtons onClickHit={doHit} onClickStand={doStand} />;
@@ -205,7 +218,7 @@ export default function Border7() {
       <PlayArea
         dealersHand={state.dealersHand}
         playersHand={state.playersHand}
-        isDeclaredStand={state.isDeclaredStand}
+        isTurnEnd={state.isTurnEnd}
       />
       <Box className={classes.messageArea}>
         {getMessage(state.playersHand)}
