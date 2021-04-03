@@ -1,14 +1,8 @@
 import React from "react";
-import { Box, Grid, makeStyles, Tooltip, Chip } from "@material-ui/core";
+import { Box, Grid, makeStyles, Chip } from "@material-ui/core";
 import { useStyles } from "../hooks/useStyles";
 import Card from "./Card";
-import * as BlackJackUtilities from "../utilities/BlackJackUtilities";
-
-const useTooltipStyles = makeStyles({
-  tooltip: {
-    fontSize: "1em"
-  }
-});
+import * as BJUtilities from "../utilities/BlackJackUtilities";
 
 /**
  * プレイエリアコンポーネント
@@ -25,7 +19,6 @@ const useTooltipStyles = makeStyles({
  */
 export default function PlayArea(props) {
   const classes = useStyles();
-  const tooltipClasses = useTooltipStyles();
   return (
     <Box className={classes.playArea}>
       <Grid
@@ -36,6 +29,12 @@ export default function PlayArea(props) {
         justify="center"
       >
         <Grid item>
+          <Box
+            className="arrow_box_common arrow_box_dealer"
+            visibility={props.isTurnEnd ? "visible" : "hidden"}
+          >
+            {BJUtilities.getTotalForDealer(props.dealersHand)}
+          </Box>
           <Grid container direction="row">
             {props.dealersHand.map((card, index) => {
               let marginLeft = index === 0 ? "0px" : "-50px";
@@ -49,25 +48,29 @@ export default function PlayArea(props) {
           </Grid>
         </Grid>
         <Grid item>
-          <Tooltip
-            title={BlackJackUtilities.getTotal(props.playersHand)}
-            open={true}
-            classes={tooltipClasses}
-            arrow
-          >
-            <Grid container direction="row">
-              {props.playersHand.map((card, index) => {
-                let marginLeft = index === 0 ? "0px" : "-50px";
-                return (
-                  <Grid item key={index} style={{ marginLeft: marginLeft }}>
-                    <Card card={card} hide={false} />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </Tooltip>
+          <Grid container direction="row">
+            {props.playersHand.map((card, index) => {
+              let marginLeft = index === 0 ? "0px" : "-50px";
+              return (
+                <Grid item key={index} style={{ marginLeft: marginLeft }}>
+                  <Card card={card} hide={false} />
+                </Grid>
+              );
+            })}
+          </Grid>
+          <Box visibility={props.isTurnEnd ? "visible" : "hidden"}>
+            <Chip
+              label={BJUtilities.judge(props.dealersHand, props.playersHand)}
+              className={classes.winOrLose}
+            />
+          </Box>
         </Grid>
       </Grid>
+      <Box className="arrow_box_common arrow_box_player">
+        {BJUtilities.getTotal(props.playersHand)}
+        {BJUtilities.isSoftHand(props.playersHand) &&
+          ` | ${BJUtilities.getTotal(props.playersHand) + 10}`}
+      </Box>
     </Box>
   );
 }

@@ -60,6 +60,13 @@ export function getTotal(hand) {
   return total;
 }
 
+export function getTotalForDealer(hand) {
+  if (hasAce(hand)) {
+    return getTotal(hand) + 10;
+  }
+  return getTotal(hand);
+}
+
 export function hasAce(hand) {
   for (const card of hand) {
     if (card.rank === "A") return true;
@@ -100,6 +107,16 @@ export function isFaceCard(card) {
   }
 }
 
+export function isSoftHand(hand) {
+  if (!hasAce(hand)) {
+    return false;
+  }
+  if (getTotal(hand) + 10 < 21) {
+    return true;
+  }
+  return false;
+}
+
 export function isBlackJack(hand) {
   const firstCard = hand[0];
   const secondCard = hand[1];
@@ -110,4 +127,46 @@ export function isBlackJack(hand) {
     return true;
   }
   return false;
+}
+
+export function getScore(hand) {
+  if (isSoftHand(hand)) {
+    return getTotal(hand) + 10;
+  }
+  return getTotal(hand);
+}
+
+export function judge(dealersHand, playersHand) {
+  const dealersScore = getScore(dealersHand);
+  console.log(dealersScore);
+  const playersScore = getScore(playersHand);
+  console.log(playersScore);
+  // プレイヤーがバースト時は無条件で負け
+  if (getTotal(playersHand) > 21) {
+    return "LOSE!!";
+  }
+  // 引き分け
+  if (dealersScore === playersScore) {
+    return "PUSH";
+  }
+  // プレイヤーがブラックジャック
+  if (isBlackJack(playersHand)) {
+    return "BLACK JACK!!";
+  }
+  // ディーラーがブラックジャック
+  if (isBlackJack(dealersHand)) {
+    return "LOSE!!";
+  }
+  // ディーラーがバースト
+  if (dealersScore > 21) {
+    return "WIN!!";
+  }
+  if (dealersScore < playersScore) {
+    return "WIN!!";
+  }
+  if (dealersScore > playersScore) {
+    return "LOSE!!";
+  }
+
+  return "WIN!!";
 }
