@@ -11,16 +11,18 @@ export const useStyles = makeStyles({
     fontSize: "22px",
     color: "white"
   },
+  winOrLoseContainer: {
+    height: "50px",
+    margin: "-50px auto 0px"
+  },
   winOrLose: {
     border: "1px solid black",
     backgroundColor: "grey",
-    //width: "150px",
     height: "40px",
-    fontSize: "1.5em",
+    fontSize: "1.3em",
     fontWeight: "bold",
     color: "white",
     lineHeight: "40px",
-    margin: "-100px auto 0px",
     opacity: 0.8
   }
 });

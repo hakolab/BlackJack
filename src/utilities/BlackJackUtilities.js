@@ -60,13 +60,6 @@ export function getTotal(hand) {
   return total;
 }
 
-export function getTotalForDealer(hand) {
-  if (hasAce(hand)) {
-    return getTotal(hand) + 10;
-  }
-  return getTotal(hand);
-}
-
 export function hasAce(hand) {
   for (const card of hand) {
     if (card.rank === "A") return true;
@@ -77,7 +70,7 @@ export function hasAce(hand) {
 export function checkDealersScore(hand) {
   let total = getTotal(hand);
   // ソフトハンドのとき、Aceを 11 と数える
-  if (hasAce(hand)) {
+  if (isSoftHand(hand)) {
     total += 10;
   }
   if (total < 17) {
@@ -96,18 +89,11 @@ export function isFaceCardOrTen(card) {
   }
   return false;
 }
-export function isFaceCard(card) {
-  switch (card.rank) {
-    case "J":
-    case "Q":
-    case "K":
-      return true;
-    default:
-      return false;
-  }
-}
 
 export function isSoftHand(hand) {
+  if (isBlackJack(hand)) {
+    return false;
+  }
   if (!hasAce(hand)) {
     return false;
   }
@@ -130,17 +116,35 @@ export function isBlackJack(hand) {
 }
 
 export function getScore(hand) {
-  if (isSoftHand(hand)) {
-    return getTotal(hand) + 10;
+  if (isBlackJack(hand)) {
+    return [21];
   }
-  return getTotal(hand);
+  if (isSoftHand(hand)) {
+    return [getTotal(hand), getTotal(hand) + 10];
+  }
+  return [getTotal(hand)];
+}
+
+export function getScoreForDisplay(hand) {
+  let score = getScore(hand);
+  if (isSoftHand(hand)) {
+    return `${score[0]} | ${score[1]}`;
+  }
+  return score[0];
+}
+
+export function getLastScore(hand) {
+  let score = getScore(hand);
+  if (isSoftHand(hand)) {
+    return score[1];
+  }
+  return score[0];
 }
 
 export function judge(dealersHand, playersHand) {
-  const dealersScore = getScore(dealersHand);
-  console.log(dealersScore);
-  const playersScore = getScore(playersHand);
-  console.log(playersScore);
+  const dealersScore = getLastScore(dealersHand);
+  const playersScore = getLastScore(playersHand);
+
   // プレイヤーがバースト時は無条件で負け
   if (getTotal(playersHand) > 21) {
     return "LOSE!!";

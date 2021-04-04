@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Grid, makeStyles, Chip } from "@material-ui/core";
+import { Box, Grid, Chip } from "@material-ui/core";
 import { useStyles } from "../hooks/useStyles";
 import Card from "./Card";
 import * as BJUtilities from "../utilities/BlackJackUtilities";
@@ -33,7 +33,8 @@ export default function PlayArea(props) {
             className="arrow_box_common arrow_box_dealer"
             visibility={props.isTurnEnd ? "visible" : "hidden"}
           >
-            {BJUtilities.getTotalForDealer(props.dealersHand)}
+            {props.dealersHand.length !== 0 &&
+              BJUtilities.getScoreForDisplay(props.dealersHand)}
           </Box>
           <Grid container direction="row">
             {props.dealersHand.map((card, index) => {
@@ -58,18 +59,19 @@ export default function PlayArea(props) {
               );
             })}
           </Grid>
-          <Box visibility={props.isTurnEnd ? "visible" : "hidden"}>
-            <Chip
-              label={BJUtilities.judge(props.dealersHand, props.playersHand)}
-              className={classes.winOrLose}
-            />
+          <Box className={classes.winOrLoseContainer}>
+            {props.isTurnEnd && (
+              <Chip
+                label={BJUtilities.judge(props.dealersHand, props.playersHand)}
+                className={classes.winOrLose}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <Box className="arrow_box_common arrow_box_player">
-        {BJUtilities.getTotal(props.playersHand)}
-        {BJUtilities.isSoftHand(props.playersHand) &&
-          ` | ${BJUtilities.getTotal(props.playersHand) + 10}`}
+      <Box className="arrow_box_common arrow_box_player" mt="20px">
+        {props.playersHand.length !== 0 &&
+          BJUtilities.getScoreForDisplay(props.playersHand)}
       </Box>
     </Box>
   );

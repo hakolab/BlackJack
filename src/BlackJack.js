@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useReducer } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import { Box } from "@material-ui/core";
 import { useStyles } from "./hooks/useStyles";
 import PlayArea from "./components/PlayArea";
@@ -221,8 +221,8 @@ export default function Border7() {
         isTurnEnd={state.isTurnEnd}
       />
       <Box className={classes.messageArea}>
-        {getMessage(state.playersHand)}
         {getButtons(state.playersHand)}
+        {/* getMessage(state.playersHand) */}
       </Box>
     </Box>
   );
