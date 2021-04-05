@@ -31,7 +31,7 @@ html {
 
 .arrow_box_common {
   position: relative;
-  background: #005f9e;
+  background: #535353;
   padding: 0px;
   text-align: center;
   color: #ffffff;
@@ -63,7 +63,7 @@ html {
 .arrow_box_player:after {
   bottom: 100%;
   left: 50%;
-  border-bottom-color: #005f9e;
+  border-bottom-color: #535353;
 }
 
 .arrow_box_dealer {
@@ -76,5 +76,5 @@ html {
 .arrow_box_dealer:after {
   top: 100%;
   left: 50%;
-  border-top-color: #005f9e;
+  border-top-color: #535353;
 }

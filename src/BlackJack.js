@@ -1,20 +1,27 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { Box } from "@material-ui/core";
 import { useStyles } from "./hooks/useStyles";
 import PlayArea from "./components/PlayArea";
 import BlackJackButtons from "./components/BlackJackButtons";
-import Message from "./components/Message";
 import GameProgressButton from "./components/GameProgressButton";
 import * as BlackJackUtilities from "./utilities/BlackJackUtilities";
+import { toast, Toaster } from "react-hot-toast";
 
-const initialDeck = BlackJackUtilities.getDeck();
+const initialDeck = BlackJackUtilities.getDeck(3);
+const penetration = 0.8;
 
 const initialState = {
   deck: initialDeck,
+  minimumNumber: getMinimumNumber(initialDeck, penetration),
   dealersHand: [],
   playersHand: [],
-  isTurnEnd: false
+  isTurnEnd: false,
+  showAlert: false
 };
+
+function getMinimumNumber(initialDeck, penetration) {
+  return initialDeck.length - Math.floor(initialDeck.length * penetration);
+}
 
 function dealForDealer(deck, hand) {
   const newDeck = deck.slice();
@@ -71,61 +78,57 @@ function reducer(state, action) {
       ) {
         return { ...state, isTurnEnd: true };
       }
-      // プレイヤーのハンドのスコアが 21 以上になった
-      if (BlackJackUtilities.getTotal(state.playersHand) >= 21) {
+      // プレイヤーのスコアが 21 になったらディーラーがカードを引いてターンは終わり
+      if (BlackJackUtilities.getTotal(state.playersHand) === 21) {
+        const [newDeck, newHand] = dealForDealer(state.deck, state.dealersHand);
+        return {
+          ...state,
+          deck: newDeck,
+          dealersHand: newHand,
+          isTurnEnd: true
+        };
+      }
+      // プレイヤーがバーストしたらターンは終わり
+      if (BlackJackUtilities.getTotal(state.playersHand) > 21) {
         return { ...state, isTurnEnd: true };
       }
       return { ...state };
+    }
+    case "shuffle": {
+      const newDeck = BlackJackUtilities.getDeck(3);
+      return { ...state, deck: newDeck };
+    }
+    case "show": {
+      return { ...state, showAlert: true };
+    }
+    case "hide": {
+      return { ...state, showAlert: false };
     }
     default:
   }
 }
 
-/**
- * Border7 コンポーネント
- *
- * 処理概要
- *  Border7 ゲームの画面を作成する
- *  カードを並べる PlayArea コンポーネントと、その下にゲーム進行のためのメッセージ出力とボタンを配置する
- *
- * 処理詳細
- *  - style 設定のため、定数 classes を宣言して、useStyles() hook を使用して初期化する
- *
- *  - useState() で以下の state を定義する
- *     - deck 初期値: getDeck() で作成した配列 deck
- *     - card 初期値： getCard() で取得した card オブジェクト
- *     - isWin 初期値： null
- *     - answered 初期値： false
- *     - isGameFinished 初期値： false
- *     - winCount 初期値：0
- *     - loseCount 初期値：0
- *
- * 関数定義
- *  getCard()
- *  checkOver()
- *  check7()
- *  checkUnder()
- *  next()
- *  getButtons()
- *  getMessage()
- *
- */
 export default function Border7() {
   const classes = useStyles();
-  const [deck, setDeck] = useState(initialDeck);
-
-  const [isWin, setIsWin] = useState(null);
-  const [answered, setAnswered] = useState(false);
-  const [isGameFinished, setIsGameFinished] = useState(false);
-  const [winCount, setWinCount] = useState(0);
-  const [loseCount, setLoseCount] = useState(0);
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     dispatch({ type: "init" });
     dispatch({ type: "check" });
   }, []);
+
+  useEffect(() => {
+    if (state.deck.length <= state.minimumNumber) {
+      dispatch({ type: "shuffle" });
+      toast("Shuffled!!", {
+        style: {
+          borderRadius: "10px",
+          background: "#737373",
+          color: "#ffffff"
+        }
+      });
+    }
+  }, [state.deck, state.minimumNumber]);
 
   function doHit() {
     dispatch({ type: "hit" });
@@ -136,27 +139,6 @@ export default function Border7() {
     dispatch({ type: "stand" });
   }
 
-  /* 
-  // for debug
-  useEffect(() => {
-    console.log(deck);
-  }, [deck]);
- */
-
-  /**
-   * ゲーム進行関数
-   *
-   * 処理概要
-   *  - next ボタン, finish ボタンが押されたときの処理を行う
-   *
-   * 処理詳細
-   *  - state deck の長さが 0 の場合
-   *     - satate isGameFinished を true に更新する
-   *  - それ以外の場合
-   *     - state card の値を null に更新する
-   *     - state answered の値を false に更新する
-   *
-   */
   function next() {
     dispatch({ type: "init" });
     dispatch({ type: "check" });
@@ -170,60 +152,17 @@ export default function Border7() {
     }
   }
 
-  /**
-   * メッセージ取得関数
-   *
-   * 処理概要
-   *  - 現在のゲーム進行に従って、画面に表示するメッセージコンポーネントを返却する
-   *
-   * 処理詳細
-   *  - state isGameFinished が true の場合
-   *     - 'Thank you for playing!', `Win: ${winCount} Lose: ${loseCount}` を配列に追加する
-   *  - state answered が true かつ isWin が true の場合
-   *     - 'Win!' を配列に追加する
-   *  - state answered が true かつ isWin が false の場合
-   *     - 'Lose!' を配列に追加する
-   *  - それ以外の場合
-   *     - 'Over or Under?' を配列に追加する
-   *
-   * @return {component} <Message />
-   */
-  function getMessage(playersHand) {
-    let message = [];
-    if (BlackJackUtilities.getTotal(playersHand) > 21) {
-      message.push("BUSTED!!");
-    } else {
-      message.push("Hit or Stand?");
-    }
-
-    return <Message>{message}</Message>;
-  }
-
-  /**
-   * Border7 コンポーネント返却
-   *
-   * 返却内容
-   *  - PlayArea コンポーネント
-   *    ※ props には以下の値を設定する
-   *     - card: state card
-   *
-   *  - getMessage() から返却される Message コンポーネント
-   *
-   *  - state isGameFinished が false の場合
-   *     - getButtons() から返却されるボタンコンポーネント
-   *
-   */
   return (
     <Box>
+      <div>
+        <Toaster position="bottom-center" reverseOrder={false} />
+      </div>
       <PlayArea
         dealersHand={state.dealersHand}
         playersHand={state.playersHand}
         isTurnEnd={state.isTurnEnd}
       />
-      <Box className={classes.messageArea}>
-        {getButtons(state.playersHand)}
-        {/* getMessage(state.playersHand) */}
-      </Box>
+      <Box className={classes.messageArea}>{getButtons(state.playersHand)}</Box>
     </Box>
   );
 }
