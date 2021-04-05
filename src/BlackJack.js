@@ -15,8 +15,7 @@ const initialState = {
   minimumNumber: getMinimumNumber(initialDeck, penetration),
   dealersHand: [],
   playersHand: [],
-  isTurnEnd: false,
-  showAlert: false
+  isTurnEnd: false
 };
 
 function getMinimumNumber(initialDeck, penetration) {
@@ -97,12 +96,6 @@ function reducer(state, action) {
     case "shuffle": {
       const newDeck = BlackJackUtilities.getDeck(3);
       return { ...state, deck: newDeck };
-    }
-    case "show": {
-      return { ...state, showAlert: true };
-    }
-    case "hide": {
-      return { ...state, showAlert: false };
     }
     default:
   }
